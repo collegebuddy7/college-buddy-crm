@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  mobile    String   @unique
+  password  String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  callHistories  CallHistory[]
+  statusChanges  StatusHistory[]
+  assignedLeads  Account[]
+}
+
+model Account {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  sr               Int           @unique
+  name             String
+  college          String
+  number           String        @unique
+  session          String
+  status           LeadStatus    @default(NEW)
+  interest         InterestLevel @default(MID)
+  followUpDate     DateTime?
+  assignedAgentId  String?       @db.ObjectId
+  assignedAgent    Agent?        @relation(fields: [assignedAgentId], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  callHistories  CallHistory[]
+  statusChanges  StatusHistory[]
+}
+
+model CallHistory {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  accountId String        @db.ObjectId
+  agentId   String        @db.ObjectId
+  direction CallDirection
+  notes     String?
+  calledAt  DateTime      @default(now())
+
+  account Account @relation(fields: [accountId], references: [id])
+  agent   Agent   @relation(fields: [agentId], references: [id])
+}
+
+model StatusHistory {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  accountId String     @db.ObjectId
+  agentId   String     @db.ObjectId
+  oldStatus LeadStatus
+  newStatus LeadStatus
+  changedAt DateTime   @default(now())
+
+  account Account @relation(fields: [accountId], references: [id])
+  agent   Agent   @relation(fields: [agentId], references: [id])
+}
+
+enum LeadStatus {
+  NEW
+  LEAD
+  INTERESTED
+  ENROLLED
+  NOT_INTERESTED
+}
+
+enum InterestLevel {
+  HIGH
+  MID
+  LOW
+}
+
+enum CallDirection {
+  INCOMING
+  OUTGOING
+}
