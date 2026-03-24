@@ -10,7 +10,6 @@ interface Props {
 export default async function LeadsPage({ searchParams }: Props) {
   const cookieStore = cookies();
   const token = cookieStore.get("cb_token")?.value;
-
   if (!token) redirect("/login");
 
   const agent = verifyToken(token);

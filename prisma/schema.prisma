@@ -82,3 +82,13 @@ enum CallDirection {
   INCOMING
   OUTGOING
 }
+
+model WhatsAppTemplate {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  message   String
+  createdBy String   @db.ObjectId
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -36,36 +36,52 @@ export async function GET(req: NextRequest) {
     ];
   }
 
-  // Lightweight include - NO call histories or status changes in list view
-  const lightInclude = {
-    assignedAgent: {
-      select: { id: true, name: true },
-    },
-  };
+  try {
+    let accounts;
 
-  if (type === "all") {
-    const [assigned, others] = await Promise.all([
-      prisma.account.findMany({
-        where: { ...where, assignedAgentId: agent.agentId },
+    if (type === "all") {
+      // Fetch assigned and unassigned in parallel - NO nested includes
+      const [assigned, others] = await Promise.all([
+        prisma.account.findMany({
+          where: { ...where, assignedAgentId: agent.agentId },
+          orderBy: { sr: "asc" },
+          select: {
+            id: true, sr: true, name: true, college: true,
+            number: true, session: true, status: true,
+            interest: true, followUpDate: true, assignedAgentId: true,
+            assignedAgent: { select: { id: true, name: true } },
+          },
+        }),
+        prisma.account.findMany({
+          where: { ...where, NOT: { assignedAgentId: agent.agentId } },
+          orderBy: { sr: "asc" },
+          select: {
+            id: true, sr: true, name: true, college: true,
+            number: true, session: true, status: true,
+            interest: true, followUpDate: true, assignedAgentId: true,
+            assignedAgent: { select: { id: true, name: true } },
+          },
+        }),
+      ]);
+      accounts = [...assigned, ...others];
+    } else {
+      accounts = await prisma.account.findMany({
+        where,
         orderBy: { sr: "asc" },
-        include: lightInclude,
-      }),
-      prisma.account.findMany({
-        where: { ...where, NOT: { assignedAgentId: agent.agentId } },
-        orderBy: { sr: "asc" },
-        include: lightInclude,
-      }),
-    ]);
-    return NextResponse.json([...assigned, ...others]);
+        select: {
+          id: true, sr: true, name: true, college: true,
+          number: true, session: true, status: true,
+          interest: true, followUpDate: true, assignedAgentId: true,
+          assignedAgent: { select: { id: true, name: true } },
+        },
+      });
+    }
+
+    return NextResponse.json(accounts);
+  } catch (error) {
+    console.error("Leads fetch error:", error);
+    return NextResponse.json({ error: "Failed to fetch leads" }, { status: 500 });
   }
-
-  const accounts = await prisma.account.findMany({
-    where,
-    orderBy: { sr: "asc" },
-    include: lightInclude,
-  });
-
-  return NextResponse.json(accounts);
 }
 
 export async function POST(req: NextRequest) {

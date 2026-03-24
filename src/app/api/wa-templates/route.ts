@@ -8,6 +8,14 @@ export async function GET(req: NextRequest) {
   if (!agent) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const templates = await prisma.whatsAppTemplate.findMany({
+    where: agent.isAdmin
+      ? {} // admin sees all templates
+      : {
+          OR: [
+            { createdBy: agent.agentId } // , own templates
+            // { isDefault: true }           // shared/default templates
+          ]
+        },
     orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
   });
   return NextResponse.json(templates);

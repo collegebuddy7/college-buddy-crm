@@ -38,7 +38,6 @@ export default function LeadDetailClient({ leadId, agent }: Props) {
   const [showWA, setShowWA] = useState(false);
 
   const fetchLead = useCallback(async () => {
-    if (!leadId) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/leads/${leadId}`);
@@ -52,9 +51,8 @@ export default function LeadDetailClient({ leadId, agent }: Props) {
     finally { setLoading(false); }
   }, [leadId]);
 
-  uuseEffect(() => {
-  if (!leadId) return;
-  fetch("/api/leads?type=all").then(r=>r.json()).then((data: Account[]) => {
+  useEffect(() => {
+    fetch("/api/leads?type=all").then(r=>r.json()).then((data: Account[]) => {
       if (Array.isArray(data)) { const ids=data.map(l=>l.id); setAllIds(ids); setCurrentIndex(ids.indexOf(leadId)); }
     });
   }, [leadId]);
