@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
@@ -36,7 +35,6 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function LeadsClient({ agent, searchParams }: Props) {
-  const router = useRouter();
   const [leads, setLeads] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.search || "");

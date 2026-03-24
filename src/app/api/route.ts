@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = signToken({ agentId: agent.id, name: agent.name, mobile: agent.mobile });
+    const token = signToken({ agentId: agent.id, name: agent.name, mobile: agent.mobile, isAdmin: agent.isAdmin ?? false});
 
     const response = NextResponse.json({ success: true, name: agent.name });
     response.cookies.set("cb_token", token, {

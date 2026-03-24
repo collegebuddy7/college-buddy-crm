@@ -544,7 +544,17 @@ export default function AdminDashboardClient({ agent }: Props) {
                       <tr key={lead.id} className="hover:bg-gray-50" style={{ background:selectedLeads.has(lead.id)?"#f0fae8":undefined }}>
                         <td className="px-3 py-3">
                           <input type="checkbox" checked={selectedLeads.has(lead.id)}
-                            onChange={e => { const s=new Set(selectedLeads); e.target.checked?s.add(lead.id):s.delete(lead.id); setSelectedLeads(s); }} />
+                            onChange={e => {
+  const s = new Set(selectedLeads);
+
+  if (e.target.checked) {
+    s.add(lead.id);
+  } else {
+    s.delete(lead.id);
+  }
+
+  setSelectedLeads(s);
+}} />
                         </td>
                         <td className="px-3 py-3 font-mono text-xs" style={{ color:"#9bb0c4" }}>#{lead.sr}</td>
                         <td className="px-3 py-3 font-semibold text-xs whitespace-nowrap" style={{ color:"#1B3D5C" }}>{lead.name}</td>
